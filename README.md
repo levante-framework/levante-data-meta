@@ -50,6 +50,7 @@ mkdir papers && cd papers
 git clone https://github.com/levante-framework/mental-rotation
 git clone git@github.com:levante-framework/survey-caregiver.git
 git clone git@github.com:levante-framework/survey-child.git
+git clone git@github.com:levante-framework/tasks-paper.git
 ```
 
 ## Repos
@@ -80,6 +81,8 @@ git clone git@github.com:levante-framework/survey-child.git
 - **`papers/survey-caregiver`** — figures/analysis for the caregiver survey
   paper.
 - **`papers/survey-child`** — manuscript and code for the child survey
+  paper.
+- **`papers/tasks-paper`** — manuscript and code for the tasks
   paper.
 
 ## Note on `CLAUDE.md` discovery
