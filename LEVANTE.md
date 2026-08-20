@@ -110,6 +110,27 @@ SEM code uses short forms — expect to remap.
   `process_runs()` with a dataset spec. Raw data is the ground truth for any
   item-identity / deployment forensics.
 
+- **Downward-extension (ages 2–5) datasets** (2026-08): **Boston Children's**
+  raw `pilot_bostonchildrens_us_main_raw:7e6c` (first tranche v4_26: 31 kids,
+  228 runs, 9 tasks) and processed **`pilot_bostonchildrens_us_main:2fj2`**
+  (v0_1, EAP θ from the 5–12-calibrated models — θ tracks hand accuracy
+  r≈0.8–1.0 but SEs are 0.4–0.9, exclusions strip most under-3 runs, and
+  **matrix is unscorable, 1/32 runs: the "Downward Extension" matrix variant's
+  items don't map into the calibrated bank**). Analysis + task-selection
+  verdict for 2-year-olds (keep vocab/trog, drop math/memory) in
+  `levante-longitudinal/10_downward_extension.qmd`. Other downex raw datasets:
+  `pilot_langcog_us_downex_raw:a6kb` (Stanford) and
+  `partner_sparklab_us_downex_raw:4n9e`. To resolve a Redivis admin-URL id
+  (e.g. `…/datasets/7e6c-…`) to a `name:code` reference, list
+  `redivis$organization("levante")$list_datasets()` and match the code prefix.
+  Raw-table gotchas: a literal `schema_row` placeholder row/`task_id` to drop;
+  `is_practice_trial` separates practice; `distractors` is a JSON-ish dict
+  (chance = 1/(n+1)); `runs` carries dashboard `num_attempted`/`num_correct`
+  (hand scores match exactly on mrot/pa/trog/vocab); CAT tasks store a running
+  `theta_estimate` per trial with a **hard floor at θ = −6** (floor code, not a
+  measurement); pipeline validity flags `less_than_10_test_trials` /
+  `straightlining_10` in `validation_msg_run`.
+
 **Auth:** Redivis calls trigger browser OAuth — user clicks once per session;
 not bypassable headlessly. **Pin versions** with the qualified reference
 `name:hash:version` (e.g. `levante_data_latest:e9pf:v1_2`); both packages warn
@@ -211,9 +232,18 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
 
 - **`levante-longitudinal`** — exploratory longitudinal analyses (this is
   where the data-integrity/trial-level investigations + the
-  corrected-scoring work live). Sequential Quarto notebooks 00→03, plus
+  corrected-scoring work live). Sequential Quarto notebooks 00→10, plus
   `tasks/` (per-task deep dives), `reports/`, and `common.R` (shared
-  loaders/palettes/`score_with_method()`).
+  loaders/palettes/`score_with_method()`). It is a **Quarto book** that
+  publishes to a **public** Quarto Pub URL; `_quarto.yml` renders only
+  `0[0-9]_*.qmd` + `tasks/*.qmd`, so new chapters (e.g. `10_…`) are *not*
+  published unless deliberately wired in — mind this for unreleased data.
+  **renv gotcha (2026-08):** the repo uses renv; a fresh checkout needs
+  `renv::restore()`, but the lockfile pins `Matrix`/`survival`/`RcppArmadillo`
+  at versions with no CRAN binaries → source build fails on this Mac
+  (`libintl.h` missing) and cascades to lme4/mgcv/ggplot2. Fix:
+  `renv::install(c("Matrix","survival","RcppArmadillo"), type="binary")` then
+  `renv::restore(exclude = c("Matrix","survival","RcppArmadillo"))`.
 - **`levante-pilots`** — the core-tasks paper repo. `03_summaries/sem.qmd`
   and `04_paper/ms_mfc.Rmd` have the published SEM + manuscript.
   Ground-truth scored data at
