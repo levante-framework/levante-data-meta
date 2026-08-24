@@ -88,9 +88,18 @@ SEM code uses short forms — expect to remap.
 - **`levante_data_latest:e9pf`** — unified dataset binding ALL sites together.
   Tables `scores` and `trials`. Has both `site` (e.g. `pilot_uniandes_co`,
   rolls bogotá+rural together) and `dataset` (e.g. `pilot_uniandes_co_bogota`,
-  preserves sub-site). **Prefer this** for analysis of processed data.
-  **Version history matters: v1.0 was scored with the column-order bug (do
-  not use); v1.1/v1.2+ are corrected.** Pin v1_2 or later.
+  preserves sub-site). **Version history matters: v1.0 was scored with the
+  column-order bug (do not use); v1.1/v1.2+ are corrected.**
+  **STALE as of 2026-08: still at v1_2 (June snapshot)** — months of newer
+  data (rural-Colombia wave 2; new RfP1 sites Sheffield/MPIB-YS/UTDT-YS;
+  Boston downex; and an across-the-board scoring-model update, registry v2_3)
+  live only in the **per-site processed datasets**. Until re-collated, bind
+  those directly — `levante-longitudinal/common.R::levante_site_specs` +
+  `load_levante_scores_sites()` is a working pinned-version reference
+  implementation (handles the ToM placeholder-row, NA-`site`, `exclusion`-
+  column, and trials-schema quirks of the newest processing). ToM scores
+  changed most in the v2_3 re-scoring (r = 0.88 vs June) — re-check June ToM
+  conclusions on new pulls.
 - **`levante_metadata_scoring:e97h`** — scoring metadata. Tables:
   `item_parameters:4cvk` (IRT difficulty/discrimination per item — NOT in the
   trials table), `model_registry:rqwv` (model file ids), `scoring_models:t416`
@@ -277,6 +286,27 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
 - **Memory**: release notes flag the 2×2/3×3 scoring concern, but grid size
   is already a separate calibrated item dimension — the DROP flag is likely
   obsolete on corrected data (`tasks/memory.qmd`).
+- **Memory length (2026-08, `tasks/memory_length.qmd`):** duration is a tax
+  on ability (r .5–.8 with θ; top quartile 6–8+ min). Staircase = start
+  len 2, +1 after 3 consecutive correct, 3-error budget per block,
+  backward restarts at 2. **Do NOT cut the error budget** (replay on real
+  data: budget 3→2 drops DE retest .58→.48, Bogotá stability .46→.32 —
+  errors are the informative trials). DCC recommendation: **promote after
+  2 consecutive correct + start both blocks at len 3** (−22–25% time, no
+  detectable reliability cost, SE .48→.53); optional add-on: forward
+  fast-track (clear len 5 → exit to backward@4) cuts worst-case q90
+  4.33→3.39 min. Round-2 tests: ramp-on-1+verify (team idea) is
+  measurement-neutral but SLOWER than current; a max-info CAT topline
+  saves only ~8% at matched precision (informative trials are long
+  trials) — the staircase is already near the info/time frontier. DE mg
+  retest 211 pairs @3.6mo; Bogotá 70 @15.6mo.
+- **`levante_data_latest` v1_2 was EXTENDED IN PLACE (2026-08)** — same
+  version string, much more mpib/sparklab/langcog data than the May pull;
+  same-named caches silently overwrite. Scoring metadata now v2_3;
+  `levantemodels::get_model_record()` works (the old rlevante registry
+  break is moot). renv gotcha #2: a poisoned cached `mgcv` binary (missing
+  OpenMP symbol) blocks mirt inside the levante-longitudinal project —
+  purge the renv cache hash dir, or run mirt outside the project.
 - **Same & Different** has new scoring models pending implementation; hold
   analysis until they land. Full model comparison + recommendation (2026-07):
   `levante-pilots/03_explore_tasks/blockCAT/sds/model_tree_mirt/sds_scoring_report.qmd`.
