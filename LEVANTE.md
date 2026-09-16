@@ -215,16 +215,20 @@ Survey/questionnaire data does **not** live in `scores`/`trials`. Pull it with
 `levante::get_surveys()` (internals: `process_surveys()` + `link_surveys()` in
 `packages/levantemodels/R/process-surveys.R`). **Caregiver-survey
 psychometrics live in `papers/survey-caregiver`** (separate repo;
-`analysis/00–03` + `analysis/common.R` + editable `analysis/constructs.csv`
-catalog). Two realities there: (1) **RESOLVED as of the `levantemodels` split**
-— published `rlevante` 0.1.0's `link_surveys()` was stale (it filtered old
-`survey_part` levels `caregiver`/`child_specific` and returned 0 caregiver rows
-on current data); current `levantemodels::link_surveys()` correctly handles
-`general`/`specific`. (2)
-**Sites ran different caregiver batteries** — Leipzig ran the full ~102-item
-reduced set, Bogotá/Western only ~29 shared items, so cross-site invariance is
-possible for only ~8 subconstructs (mostly Caregiver Well-Being). Long format
-keyed by `survey_type`
+`analysis/00–03` + `00a` data-flow audit + `analysis/common.R` + editable
+`analysis/constructs.csv` catalog). History there (all RESOLVED upstream as of
+2026-08): (1) published `rlevante` 0.1.0's `link_surveys()` was stale (old
+`survey_part` levels → 0 caregiver rows); (2) the **child-link bug** — CO/CA
+stored the child in `surveys.specific_scope_id`, which the old pipeline never
+read, so 100% of their child-specific surveys came through unlinked. That bug
+manufactured an apparent "sites ran different batteries / only ~29 shared
+items" pattern — **disproven**: the same survey ran everywhere (~104/105
+measurement items in all 3 sites; ~26 subconstructs invariance-testable, most
+scalar-invariant). Current `levantemodels::link_surveys()` is correct; empty
+`:dup` stub survey records are flagged `valid_survey = FALSE`. NB the 2026-08
+output renamed `variable`→`question`, `variable_order`→`question_order`,
+`item_text`→`question_text`, and dropped inline `reverse_coded`/`values`
+(still in `fetch_survey_items()`). Long format keyed by `survey_type`
 (caregiver/teacher/child), `survey_part` (caregiver = `general` household +
 `specific` per-child), `construct`, `variable`, and an analysis-ready `value`
 that is **already reverse-coded** (verify the recode — `reverse_value()` silently
