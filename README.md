@@ -18,9 +18,9 @@ repo, cloned as siblings:
 ```
 levante/                        # your local root — pick any name
 ├── levante-data-meta/          # this repo — shared CLAUDE.md / LEVANTE.md
-├── levante-data-processing/
+├── levante-data-tools/
 ├── levante-datapage/
-├── levante-longitudinal/
+├── levante-analysis/
 ├── levante-pilots/
 ├── packages/
 │   ├── levante-r/
