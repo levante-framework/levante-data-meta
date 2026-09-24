@@ -22,7 +22,7 @@ de-identified and released openly on a rolling basis.
 data design. If a session uncovers a data/scoring/infrastructure problem, it is
 in-scope to flag it for the DCC.
 
-Two manuscripts (PDFs in `levante-longitudinal/papers/`):
+Two manuscripts (PDFs in `levante-analysis/papers/`):
 - **Frank et al. 2025, *Child Development*** — the framework paper (rationale,
   federated design, constructs, governance, scientific aims).
 - **Kachergis, O'Reilly et al. (dec 2025 ms)** — the **core tasks** paper
@@ -94,7 +94,7 @@ SEM code uses short forms — expect to remap.
   data (rural-Colombia wave 2; new RfP1 sites Sheffield/MPIB-YS/UTDT-YS;
   Boston downex; and an across-the-board scoring-model update, registry v2_3)
   live only in the **per-site processed datasets**. Until re-collated, bind
-  those directly — `levante-longitudinal/common.R::levante_site_specs` +
+  those directly — `levante-analysis/common.R::levante_site_specs` +
   `load_levante_scores_sites()` is a working pinned-version reference
   implementation (handles the ToM placeholder-row, NA-`site`, `exclusion`-
   column, and trials-schema quirks of the newest processing). ToM scores
@@ -120,14 +120,17 @@ SEM code uses short forms — expect to remap.
   item-identity / deployment forensics.
 
 - **Downward-extension (ages 2–5) datasets** (2026-08): **Boston Children's**
-  raw `pilot_bostonchildrens_us_main_raw:7e6c` (first tranche v4_26: 31 kids,
-  228 runs, 9 tasks) and processed **`pilot_bostonchildrens_us_main:2fj2`**
-  (v0_1, EAP θ from the 5–12-calibrated models — θ tracks hand accuracy
-  r≈0.8–1.0 but SEs are 0.4–0.9, exclusions strip most under-3 runs, and
-  **matrix is unscorable, 1/32 runs: the "Downward Extension" matrix variant's
-  items don't map into the calibrated bank**). Analysis + task-selection
-  verdict for 2-year-olds (keep vocab/trog, drop math/memory) in
-  `levante-longitudinal/10_downward_extension.qmd`. Other downex raw datasets:
+  raw `pilot_bostonchildrens_us_main_raw:7e6c` (v5_0: 44 children, 378 runs,
+  9 tasks, collected through 2026-08-29) and processed
+  **`pilot_bostonchildrens_us_main:2fj2`** (unreleased `next` draft pulled
+  2026-08-31; EAP θ for 42 of 44 children from the 5–12-calibrated models —
+  θ tracks hand accuracy r≈0.8–1.0 but SEs are 0.4–0.9, exclusions strip most
+  under-3 runs, and **matrix is ~unscorable, 4/50 runs: the "Downward
+  Extension" matrix variant's items don't map into the calibrated bank**).
+  Analysis + task-selection verdict for 2-year-olds (keep vocab/trog, drop
+  math/memory; Same & Different promising from ~2.5; matrix behaviorally
+  promising but blocked on calibration) in
+  `levante-analysis/10_downward_extension.qmd`. Other downex raw datasets:
   `pilot_langcog_us_downex_raw:a6kb` (Stanford) and
   `partner_sparklab_us_downex_raw:4n9e`. To resolve a Redivis admin-URL id
   (e.g. `…/datasets/7e6c-…`) to a `name:code` reference, list
@@ -206,8 +209,9 @@ data), and a content-keyed `mapping_items` join. Notes that stay true:
 - Trials → scores rescoring chain (all in `levantemodels`):
   `fetch_scoring_table()` → `get_model_spec()` → `get_model_record()` (via
   `fetch_registry_dir()`) → `recode_trials()` → shape wide → reorder columns
-  → `fscores()`. A corrected reference implementation lives at
-  `levante-longitudinal/common.R::score_with_method()`.
+  → `fscores()`. The column-order fix is upstream in
+  `levantemodels::score_irt()` (PR #9); `levante-analysis/common.R::score_task_irt()`
+  wraps the spec-lookup → recode → `score_irt()` chain for one task × dataset.
 
 ## Surveys (caregiver / teacher / child) — separate pipeline from scores
 
@@ -234,23 +238,25 @@ output renamed `variable`→`question`, `variable_order`→`question_order`,
 that is **already reverse-coded** (verify the recode — `reverse_value()` silently
 NAs out-of-range responses). Caregiver↔child links are many-to-many
 (`parent1_id`/`parent2_id`). **Strategy + style handoff for survey psychometrics:**
-`levante-longitudinal/reports/survey_caregiver_handoff.md`.
+`levante-analysis/reports/survey_caregiver_handoff.md`.
 
 ## Repo notes
 
 Paths below are relative to the LEVANTE root directory — see
 `levante-data-meta/README.md` for the standard directory layout (this repo
 and its siblings, including `packages/levante-r`, `packages/levantemodels`,
-`levante-longitudinal`, `levante-pilots`).
+`levante-analysis`, `levante-pilots`).
 
-- **`levante-longitudinal`** — exploratory longitudinal analyses (this is
-  where the data-integrity/trial-level investigations + the
+- **`levante-analysis`** (renamed from `levante-longitudinal`; update old
+  clones with `git remote set-url`) — exploratory longitudinal analyses (this
+  is where the data-integrity/trial-level investigations + the
   corrected-scoring work live). Sequential Quarto notebooks 00→10, plus
   `tasks/` (per-task deep dives), `reports/`, and `common.R` (shared
-  loaders/palettes/`score_with_method()`). It is a **Quarto book** that
-  publishes to a **public** Quarto Pub URL; `_quarto.yml` renders only
-  `0[0-9]_*.qmd` + `tasks/*.qmd`, so new chapters (e.g. `10_…`) are *not*
-  published unless deliberately wired in — mind this for unreleased data.
+  loaders/palettes/`score_task_irt()`). It is a **Quarto book** that
+  publishes to a **public** Quarto Pub URL; `_quarto.yml` renders
+  `0[0-9]_*.qmd`, `1[0-9]_*.qmd`, and `tasks/*.qmd` (ch. 10 is published;
+  `reports/`, `old/`, `tasks/mrot/` are not), so any new notebook matching
+  those globs gets rendered — mind this for unreleased data.
   **renv gotcha (2026-08):** the repo uses renv; a fresh checkout needs
   `renv::restore()`, but the lockfile pins `Matrix`/`survival`/`RcppArmadillo`
   at versions with no CRAN binaries → source build fails on this Mac
@@ -272,13 +278,13 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   for CAT/guessing items). Fixed in rlevante; data re-released as
   **v1.1/v1.2**. Most apparent v1.0 "longitudinal declines" and
   "CAT-vs-non-CAT step shifts" were this bug. Writeup:
-  `levante-longitudinal/reports/rlevante_handoff.md`. Lesson retained above
+  `levante-analysis/reports/rlevante_handoff.md`. Lesson retained above
   (fscores positional matching).
 - **`adaptive` flag missing** on ~235 runs in v1.2 (early-beta task_versions
   of Bogotá Memory + Leipzig/Western Math); all are non-adaptive
   (DCC-confirmed); backfill to FALSE.
 - **ToM (Stories) early-deployment item-identity defects** (forensics:
-  `levante-longitudinal/tasks/tom_reality_check_bug.qmd`): inverted answer
+  `levante-analysis/tasks/tom_reality_check_bug.qmd`): inverted answer
   keys on specific cells (CO `moral_reasoning_reality_check_1` at 8% on 2AFC;
   CO `reference_reference`; late-DE `deception_reality_check_2/_3`); 110 DE
   runs (Sept–Oct 2024) with hostile-attribution answer keys under ToM uids;
@@ -309,7 +315,7 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   same-named caches silently overwrite. Scoring metadata now v2_3;
   `levantemodels::get_model_record()` works (the old rlevante registry
   break is moot). renv gotcha #2: a poisoned cached `mgcv` binary (missing
-  OpenMP symbol) blocks mirt inside the levante-longitudinal project —
+  OpenMP symbol) blocks mirt inside the levante-analysis project —
   purge the renv cache hash dir, or run mirt outside the project.
 - **Same & Different** has new scoring models pending implementation; hold
   analysis until they land. Full model comparison + recommendation (2026-07):

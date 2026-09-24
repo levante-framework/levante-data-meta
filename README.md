@@ -39,7 +39,7 @@ mkdir levante && cd levante
 git clone git@github.com:levante-framework/levante-data-meta.git
 git clone git@github.com:levante-framework/levante-data-processing.git
 git clone git@github.com:levante-framework/levante-datapage.git
-git clone git@github.com:levante-framework/levante-longitudinal.git
+git clone git@github.com:levante-framework/levante-analysis.git
 git clone git@github.com:levante-framework/levante-pilots.git
 
 mkdir packages && cd packages
@@ -65,7 +65,7 @@ git clone git@github.com:levante-framework/tasks-paper.git
 - **`levante-datapage`** — interactive web data browser for LEVANTE data
   (participant/assessment counts, ability scores by age, item IRT
   parameters).
-- **`levante-longitudinal`** — exploratory longitudinal analyses of LEVANTE
+- **`levante-analysis`** — exploratory longitudinal analyses of LEVANTE
   core-task data as a sequence of reproducible Quarto notebooks; home of the
   data-integrity investigations and corrected-scoring work.
 - **`levante-pilots`** — analysis repo backing the LEVANTE core-tasks paper
