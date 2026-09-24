@@ -103,3 +103,25 @@ that imports the shared file via Claude Code's `@path` import syntax:
 
 (or `@../../levante-data-meta/CLAUDE.md` for repos nested under `packages/`
 or `papers/`). If you clone a repo that's missing this stub, add it.
+
+## Claude Code skill: `levante-guide`
+
+`.claude/skills/levante-guide/` is a Claude Code skill with two jobs:
+
+- **Find prior analyses.** Queries the `levante:` metadata in the
+  `levante-analysis` notebooks (by task, dataset, status, or text) and
+  reports what each concluded, on which data, and how settled it is.
+- **Check analysis code or plans** against known LEVANTE data and scoring
+  pitfalls (`references/checks.md`, which points into `LEVANTE.md`).
+
+It loads automatically in sessions started inside this repo. Claude Code
+doesn't look in sibling repos, so to use it everywhere (e.g. in
+`levante-analysis`), symlink it into your personal skills once, from the
+LEVANTE root:
+
+```sh
+mkdir -p ~/.claude/skills
+ln -s "$PWD/levante-data-meta/.claude/skills/levante-guide" ~/.claude/skills/levante-guide
+```
+
+Requires R with the `yaml` package (installed with `rmarkdown`/`knitr`).
