@@ -1,0 +1,63 @@
+{
+  "skill_name": "levante-guide",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm new to LEVANTE and wrote a first pass at an analysis in evals/files/seeded_analysis.R. Can you look it over before I run it on the real data?",
+      "expected_output": "A LEVANTE checks report that flags each seeded problem with its line number, consequence, and fix, and does not invent problems that aren't in the code.",
+      "files": ["evals/files/seeded_analysis.R"],
+      "expectations": [
+        "Flags line 2 (and/or 3) for using levante_data_latest, noting it is stale and newer data are in the per-site processed datasets",
+        "Flags line 2 for having no pinned version",
+        "Flags line 6 for averaging scores across tasks with different score_type (sre is a z-scored count, swr a CAT theta)",
+        "Mentions the theta = -6 floor (ROAR-Word) as a problem for averages or change scores",
+        "Flags line 9 as a cross-site mean comparison that is not interpretable (scalar invariance fails / confounded)",
+        "Flags lines 12-13 for computing T2-T1 change without checking adaptive/non-adaptive mode or EAP shrinkage",
+        "Flags line 19 because mirt::fscores matches response.pattern columns by position, so columns must be reordered to the model's item order",
+        "Flags the ToM rescoring for missing recode_trials() and/or known early-deployment ToM item-identity defects",
+        "Gives a line number for each issue",
+        "Does not claim problems that are absent from the code (e.g. schema_row placeholders, which only occur in raw tables)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "i want to look at vocabulary growth in the bogota kids. has anyone on the team already done anything on this? what did they find",
+      "expected_output": "Uses the finder to list relevant levante-analysis notebooks (tasks/vocab.qmd first, plus 02_growth.qmd and related), summarizes their findings with provenance, and points to the files.",
+      "files": [],
+      "expectations": [
+        "Runs scripts/find_analyses.R with a vocab task filter (and ideally a bogota dataset filter)",
+        "Names tasks/vocab.qmd",
+        "Names 02_growth.qmd",
+        "Reports that the apparent vocab decline was mostly the column-order scoring bug",
+        "States that the notebooks are drafts (AI-generated, not human-verified)",
+        "Gives the data version or last_run date the findings are based on"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Mike mentioned at some point that Bogotá math showed regression to the mean between waves. What's the current understanding of that?",
+      "expected_output": "Identifies that tasks/math.qmd and tasks/math_item_calibration.qmd are superseded by tasks/math_eap_vs_ml.qmd, explains the current understanding (column-order bug), and says which older findings still hold.",
+      "files": [],
+      "expectations": [
+        "Points to tasks/math_eap_vs_ml.qmd as the current analysis",
+        "Says tasks/math.qmd (and/or tasks/math_item_calibration.qmd) is superseded",
+        "Explains that the compression was mainly the v1.0 column-order scoring bug (Galton slope 0.19 -> 0.81 or equivalent)",
+        "Mentions at least one still-valid older finding (within-item growth in every quartile, or number-line items dominating above beta = 1)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Plan for my first LEVANTE project: pull theory-of-mind scores from levante_data_latest and compare Germany vs Colombia to see which country's kids have more advanced ToM at each age. Any concerns before I start?",
+      "expected_output": "Reviews the plan against the checks: cross-site mean comparison, ToM item-identity defects and control-item non-invariance, stale dataset / version pinning, and the v2_3 ToM re-scoring; suggests interpretable alternatives and points to the relevant ToM notebooks.",
+      "files": [],
+      "expectations": [
+        "Says cross-site mean comparisons are not interpretable (scalar invariance fails and/or site confounds)",
+        "Mentions the ToM early-deployment defects or control-item non-invariance across sites",
+        "Notes that levante_data_latest is stale and/or that the version should be pinned",
+        "Mentions that ToM scores changed substantially in the v2_3 re-scoring",
+        "Suggests an interpretable alternative (within-site age effects or cross-site associations)",
+        "Points to at least one relevant notebook (e.g. tasks/tom_reality_check_bug.qmd or tasks/tom_dif_multigroup.qmd)"
+      ]
+    }
+  ]
+}
