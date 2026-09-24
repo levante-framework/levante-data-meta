@@ -120,13 +120,16 @@ SEM code uses short forms — expect to remap.
   item-identity / deployment forensics.
 
 - **Downward-extension (ages 2–5) datasets** (2026-08): **Boston Children's**
-  raw `pilot_bostonchildrens_us_main_raw:7e6c` (first tranche v4_26: 31 kids,
-  228 runs, 9 tasks) and processed **`pilot_bostonchildrens_us_main:2fj2`**
-  (v0_1, EAP θ from the 5–12-calibrated models — θ tracks hand accuracy
-  r≈0.8–1.0 but SEs are 0.4–0.9, exclusions strip most under-3 runs, and
-  **matrix is unscorable, 1/32 runs: the "Downward Extension" matrix variant's
-  items don't map into the calibrated bank**). Analysis + task-selection
-  verdict for 2-year-olds (keep vocab/trog, drop math/memory) in
+  raw `pilot_bostonchildrens_us_main_raw:7e6c` (v5_0: 44 children, 378 runs,
+  9 tasks, collected through 2026-08-29) and processed
+  **`pilot_bostonchildrens_us_main:2fj2`** (unreleased `next` draft pulled
+  2026-08-31; EAP θ for 42 of 44 children from the 5–12-calibrated models —
+  θ tracks hand accuracy r≈0.8–1.0 but SEs are 0.4–0.9, exclusions strip most
+  under-3 runs, and **matrix is ~unscorable, 4/50 runs: the "Downward
+  Extension" matrix variant's items don't map into the calibrated bank**).
+  Analysis + task-selection verdict for 2-year-olds (keep vocab/trog, drop
+  math/memory; Same & Different promising from ~2.5; matrix behaviorally
+  promising but blocked on calibration) in
   `levante-analysis/10_downward_extension.qmd`. Other downex raw datasets:
   `pilot_langcog_us_downex_raw:a6kb` (Stanford) and
   `partner_sparklab_us_downex_raw:4n9e`. To resolve a Redivis admin-URL id
@@ -206,8 +209,9 @@ data), and a content-keyed `mapping_items` join. Notes that stay true:
 - Trials → scores rescoring chain (all in `levantemodels`):
   `fetch_scoring_table()` → `get_model_spec()` → `get_model_record()` (via
   `fetch_registry_dir()`) → `recode_trials()` → shape wide → reorder columns
-  → `fscores()`. A corrected reference implementation lives at
-  `levante-analysis/common.R::score_with_method()`.
+  → `fscores()`. The column-order fix is upstream in
+  `levantemodels::score_irt()` (PR #9); `levante-analysis/common.R::score_task_irt()`
+  wraps the spec-lookup → recode → `score_irt()` chain for one task × dataset.
 
 ## Surveys (caregiver / teacher / child) — separate pipeline from scores
 
@@ -244,10 +248,11 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   is where the data-integrity/trial-level investigations + the
   corrected-scoring work live). Sequential Quarto notebooks 00→10, plus
   `tasks/` (per-task deep dives), `reports/`, and `common.R` (shared
-  loaders/palettes/`score_with_method()`). It is a **Quarto book** that
-  publishes to a **public** Quarto Pub URL; `_quarto.yml` renders only
-  `0[0-9]_*.qmd` + `tasks/*.qmd`, so new chapters (e.g. `10_…`) are *not*
-  published unless deliberately wired in — mind this for unreleased data.
+  loaders/palettes/`score_task_irt()`). It is a **Quarto book** that
+  publishes to a **public** Quarto Pub URL; `_quarto.yml` renders
+  `0[0-9]_*.qmd`, `1[0-9]_*.qmd`, and `tasks/*.qmd` (ch. 10 is published;
+  `reports/`, `old/`, `tasks/mrot/` are not), so any new notebook matching
+  those globs gets rendered — mind this for unreleased data.
   **renv gotcha (2026-08):** the repo uses renv; a fresh checkout needs
   `renv::restore()`, but the lockfile pins `Matrix`/`survival`/`RcppArmadillo`
   at versions with no CRAN binaries → source build fails on this Mac
