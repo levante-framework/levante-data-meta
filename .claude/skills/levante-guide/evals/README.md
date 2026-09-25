@@ -58,7 +58,11 @@ looks good. It needs the `claude` CLI.
 
 ## When to rerun
 
-After changing `SKILL.md`, `references/checks.md`, or the finder script, and
+After changing `SKILL.md`, `LEVANTE.md`, or the finder script, and
 after notebook metadata changes that affect evals 2–3 (e.g. a notebook marked
 `reviewed` or `superseded`). Update the expectations when the underlying facts
 change, e.g. after the Same & Different status is settled (https://github.com/levante-framework/levante-data-meta/issues/3).
+The stale-document expectations in evals 2–3 name documents that are stale
+today (`slides/summary.qmd`, `reports/adaptive_missingness.qmd`); once those
+are fixed (levante-framework/levante-analysis#6 fixes the slides), eval 2's
+expectation has no known target and should be dropped or re-pointed.

@@ -110,9 +110,10 @@ or `papers/`). If you clone a repo that's missing this stub, add it.
 
 - **Find prior analyses.** Queries the `levante:` metadata in the
   `levante-analysis` notebooks (by task, dataset, status, or text) and
-  reports what each concluded, on which data, and how settled it is.
-- **Check analysis code or plans** against known LEVANTE data and scoring
-  pitfalls (`references/checks.md`, which points into `LEVANTE.md`).
+  reports what each concluded, on which data, and how settled it is,
+  cross-checking the metadata against the notebook text and flagging
+  documents that still repeat superseded findings.
+- **Review analysis code or plans** against the pitfalls in `LEVANTE.md`.
 
 It loads automatically in sessions started inside this repo. Claude Code
 doesn't look in sibling repos, so to use it everywhere (e.g. in

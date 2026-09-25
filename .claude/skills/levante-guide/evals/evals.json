@@ -5,7 +5,9 @@
       "id": 1,
       "prompt": "I'm new to LEVANTE and wrote a first pass at an analysis in evals/files/seeded_analysis.R. Can you look it over before I run it on the real data?",
       "expected_output": "A LEVANTE checks report that flags each seeded problem with its line number, consequence, and fix, and does not invent problems that aren't in the code.",
-      "files": ["evals/files/seeded_analysis.R"],
+      "files": [
+        "evals/files/seeded_analysis.R"
+      ],
       "expectations": [
         "Flags line 2 (and/or 3) for using levante_data_latest, noting it is stale and newer data are in the per-site processed datasets",
         "Flags line 2 for having no pinned version",
@@ -25,12 +27,12 @@
       "expected_output": "Uses the finder to list relevant levante-analysis notebooks (tasks/vocab.qmd first, plus 02_growth.qmd and related), summarizes their findings with provenance, and points to the files.",
       "files": [],
       "expectations": [
-        "Runs scripts/find_analyses.R with a vocab task filter (and ideally a bogota dataset filter)",
         "Names tasks/vocab.qmd",
         "Names 02_growth.qmd",
         "Reports that the apparent vocab decline was mostly the column-order scoring bug",
         "States that the notebooks are drafts (AI-generated, not human-verified)",
-        "Gives the data version or last_run date the findings are based on"
+        "Gives the data version or last_run date the findings are based on",
+        "Flags at least one document that still states a superseded explanation of the vocab decline (e.g. slides/summary.qmd's 'CAT item-exposure / floor')"
       ]
     },
     {
@@ -42,7 +44,9 @@
         "Points to tasks/math_eap_vs_ml.qmd as the current analysis",
         "Says tasks/math.qmd (and/or tasks/math_item_calibration.qmd) is superseded",
         "Explains that the compression was mainly the v1.0 column-order scoring bug (Galton slope 0.19 -> 0.81 or equivalent)",
-        "Mentions at least one still-valid older finding (within-item growth in every quartile, or number-line items dominating above beta = 1)"
+        "Mentions at least one still-valid older finding (within-item growth in every quartile, or number-line items dominating above beta = 1)",
+        "Flags at least one other document that still states the superseded CAT-routing explanation (e.g. reports/adaptive_missingness.qmd or slides/summary.qmd)",
+        "Says which data version the math_eap_vs_ml findings were computed on (v1.0, pre-fix) or that they predate the current data"
       ]
     },
     {
