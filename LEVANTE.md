@@ -22,7 +22,7 @@ de-identified and released openly on a rolling basis.
 data design. If a session uncovers a data/scoring/infrastructure problem, it is
 in-scope to flag it for the DCC.
 
-Two manuscripts (PDFs in `levante-longitudinal/papers/`):
+Two manuscripts (PDFs in `levante-analysis/papers/`):
 - **Frank et al. 2025, *Child Development*** — the framework paper (rationale,
   federated design, constructs, governance, scientific aims).
 - **Kachergis, O'Reilly et al. (dec 2025 ms)** — the **core tasks** paper
@@ -94,7 +94,7 @@ SEM code uses short forms — expect to remap.
   data (rural-Colombia wave 2; new RfP1 sites Sheffield/MPIB-YS/UTDT-YS;
   Boston downex; and an across-the-board scoring-model update, registry v2_3)
   live only in the **per-site processed datasets**. Until re-collated, bind
-  those directly — `levante-longitudinal/common.R::levante_site_specs` +
+  those directly — `levante-analysis/common.R::levante_site_specs` +
   `load_levante_scores_sites()` is a working pinned-version reference
   implementation (handles the ToM placeholder-row, NA-`site`, `exclusion`-
   column, and trials-schema quirks of the newest processing). ToM scores
@@ -127,7 +127,7 @@ SEM code uses short forms — expect to remap.
   **matrix is unscorable, 1/32 runs: the "Downward Extension" matrix variant's
   items don't map into the calibrated bank**). Analysis + task-selection
   verdict for 2-year-olds (keep vocab/trog, drop math/memory) in
-  `levante-longitudinal/10_downward_extension.qmd`. Other downex raw datasets:
+  `levante-analysis/10_downward_extension.qmd`. Other downex raw datasets:
   `pilot_langcog_us_downex_raw:a6kb` (Stanford) and
   `partner_sparklab_us_downex_raw:4n9e`. To resolve a Redivis admin-URL id
   (e.g. `…/datasets/7e6c-…`) to a `name:code` reference, list
@@ -150,7 +150,11 @@ if you don't.
 - Tasks scored with **multi-group IRT** via the `mirt` package.
 - Cross-site tasks use **`multigroup_site` scalar** Rasch (math, matrix,
   hf, mg, trog) or 2PL (sds, mrot — more discrimination spread).
-  `vocab`, `swr`, `pa`, `tom` use **`by_language`** single-group models.
+  (As of scoring v2_3 — verified 2026-09-24 — sds is Rasch+guess too;
+  only mrot and tom are 2PL; specs are `multigroup_dataset`.)
+  `vocab`, `swr`, `pa` use **`by_language`** single-group models.
+  `tom` (since scoring v2_3) is ONE `multigroup_dataset` 2PL scalar model
+  (4 pilot groups, 1,014 June-era runs) applied to all 25 datasets.
   `sre` is not IRT at all (speeded guessing-adjusted z-scored count);
   `swr` is a CAT θ (`ability_cat`); mind the `score_type` column before
   pooling or thresholding "extreme" scores.
@@ -207,7 +211,7 @@ data), and a content-keyed `mapping_items` join. Notes that stay true:
   `fetch_scoring_table()` → `get_model_spec()` → `get_model_record()` (via
   `fetch_registry_dir()`) → `recode_trials()` → shape wide → reorder columns
   → `fscores()`. A corrected reference implementation lives at
-  `levante-longitudinal/common.R::score_with_method()`.
+  `levante-analysis/common.R::score_with_method()`.
 
 ## Surveys (caregiver / teacher / child) — separate pipeline from scores
 
@@ -234,16 +238,16 @@ output renamed `variable`→`question`, `variable_order`→`question_order`,
 that is **already reverse-coded** (verify the recode — `reverse_value()` silently
 NAs out-of-range responses). Caregiver↔child links are many-to-many
 (`parent1_id`/`parent2_id`). **Strategy + style handoff for survey psychometrics:**
-`levante-longitudinal/reports/survey_caregiver_handoff.md`.
+`levante-analysis/reports/survey_caregiver_handoff.md`.
 
 ## Repo notes
 
 Paths below are relative to the LEVANTE root directory — see
 `levante-data-meta/README.md` for the standard directory layout (this repo
 and its siblings, including `packages/levante-r`, `packages/levantemodels`,
-`levante-longitudinal`, `levante-pilots`).
+`levante-analysis`, `levante-pilots`).
 
-- **`levante-longitudinal`** — exploratory longitudinal analyses (this is
+- **`levante-analysis`** — exploratory longitudinal analyses (this is
   where the data-integrity/trial-level investigations + the
   corrected-scoring work live). Sequential Quarto notebooks 00→10, plus
   `tasks/` (per-task deep dives), `reports/`, and `common.R` (shared
@@ -272,13 +276,13 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   for CAT/guessing items). Fixed in rlevante; data re-released as
   **v1.1/v1.2**. Most apparent v1.0 "longitudinal declines" and
   "CAT-vs-non-CAT step shifts" were this bug. Writeup:
-  `levante-longitudinal/reports/rlevante_handoff.md`. Lesson retained above
+  `levante-analysis/reports/rlevante_handoff.md`. Lesson retained above
   (fscores positional matching).
 - **`adaptive` flag missing** on ~235 runs in v1.2 (early-beta task_versions
   of Bogotá Memory + Leipzig/Western Math); all are non-adaptive
   (DCC-confirmed); backfill to FALSE.
 - **ToM (Stories) early-deployment item-identity defects** (forensics:
-  `levante-longitudinal/tasks/tom_reality_check_bug.qmd`): inverted answer
+  `levante-analysis/tasks/tom_reality_check_bug.qmd`): inverted answer
   keys on specific cells (CO `moral_reasoning_reality_check_1` at 8% on 2AFC;
   CO `reference_reference`; late-DE `deception_reality_check_2/_3`); 110 DE
   runs (Sept–Oct 2024) with hostile-attribution answer keys under ToM uids;
@@ -287,6 +291,86 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   reality-check cross-site DIF (repairing provable defects removes ~70% of
   scalar non-invariance). Until fixed upstream, treat ToM controls as
   non-comparable across sites.
+- **ToM audit (2026-09-24; adversarially verified; artifacts in
+  `levante-analysis/data/tom_audit_2026-09/`, gitignored):**
+  (1) **ToM item exclusions are no-ops everywhere.** Processing never reads
+  `exclusions:0b5t`; in `levante-pilots/01_fetch_data/02_scoring_prep.qmd`
+  the anti_join runs AFTER `recode_tom()` rewrites uids to story level, so
+  the generic `tom_*` exclusion uids match nothing (since 2025-11-05). The
+  v2_3 ToM model contains all 12 flagged entries (31/95 items). The
+  tasks-paper text claiming excluded Stories items is wrong. Non-ToM
+  exclusions do work at calibration (not at scoring for dataset-scoped rows);
+  the sds_3unique rows are moot (recode_sds drops that block). Fix =
+  levantemodels PR #28 (`apply_exclusions()`: story-less or story-level
+  uids, optional dataset/language/date scopes, `exclude` honored; exclusions
+  stay in Airtable). Do NOT switch calibration to it before the 12 generic
+  ToM Airtable rows are replaced — they over-exclude (12,519 trials).
+  (2) **No ToM corrections exist in the pipeline**; 100% of released ToM
+  trials carry uncorrected uid/correct. Fixable defects: the GCS
+  `theory-of-mind-item-bank.csv` item_uid column mislabels stories 2/6 (and
+  3 in an earlier revision) → May 2025–Apr 2026 DE/Western/langcog trials
+  misfiled (~1.2k) or dropped (~0.9k, uids absent from corpus_items);
+  V0 Bogotá + rural CO-retest-A retro-map position collapses; ToM `chance`
+  is stored per generic uid → 3 yes/no second-order items fit with g=.33.
+  Fix for identities + chance: levantemodels PR #27 (`fix_tom_item_uids()`
+  in `add_item_ids()`; +1,503 relabels, +1,458 restored; needs reprocess +
+  ToM refit after merge).
+  (3) **The generic exclusion list is wrong both ways**: 19/28
+  story×entry instances are fine; genuinely bad = `reference_reference`
+  (stories 5/11/17, the "cups" family; children pick the literal referent)
+  and story-4 `deception_reality_check_2/_3` (broke with image 4g,
+  2024-10-24). `reality_known_false_belief` is near/below chance in es-CO
+  and es-AR only (translation check pending). Bad items are still deployed.
+  (4) The DE Sept–Oct 2024 "HA-keyed" trials have a bad `answer` field
+  but valid `correct` — keep them; the beta.19 run drop is right.
+  (5) The live ToM "fCAT" (cat-test corpus v3) is NOT adaptive: blank
+  parameters, θ logged as 0, 3 random stories (one per story_group, 3-block
+  design); released with adaptive=TRUE. core-tasks `updateTheta` hardcodes
+  a=1 for every CAT task. (6) Datasets outside a multigroup model's groups
+  are scored with the FIRST group's prior (`irt-score.R` TODO) → released ToM
+  scores are not comparable across datasets. DCC decision: score group by
+  group; fix = levantemodels PR #26 (estimate the new dataset's mean/var
+  with items fixed; <25 runs keeps the old fallback). (7) Western's item-bank ToM
+  variant never launched (174 attempts, 2026-04-25→08-31): corpus validation
+  aborts at startup because its HA items lack en-US translations; known to
+  engineering (incident report 2026-07-12, Sentry DASHBOARD-19A/1A0,
+  core-tasks#437); variant updated. Empty `runs` rows with null
+  num_attempted + taskAbort = launch failure, not export loss. (8) The unreleased `levante_metadata_items` 'next' (2026-09-22)
+  exclusions table ignores the Airtable `exclude` checkbox (+73 unchecked
+  math uids); 02_scoring_prep reads it unpinned. (9) Production processing is
+  now the Redivis notebook `levante/process_dataset:zr0v`
+  (`process_dataset.R` deleted from main 2026-09-22); releases use RT rules
+  (>60 s, <300 ms) that differ from the old script.
+- **Stories consolidated chapter (2026-09-25, in the book on levante-analysis main dc9f32d,
+  `tasks/stories.qmd`; June ToM chapters moved to `old/`; build/reliability scripts need
+  `LEVANTEMODELS_PATH` pointing at a PR #27 checkout until it merges;
+  data build `tasks/_build_stories_data.R` → `data/stories_2026-09/`, fits `_stories_fits_*.R`,
+  run outside renv):** corrected data from raw (PR #27 code) reconcile exactly with releases.
+  Per-administration reliability .56–.82 (fixed forms, per dataset) and .30–.65 (fCAT);
+  June's '.92' was mirt marginal_rxx of a 58-item pool (invalid for Rasch fits with
+  estimated variance; empirical .55). Story 10 deception fb_1 does not discriminate.
+  Story-4 4g rc_2/_3 may be a key problem (flipped: .67/.81) — content team to confirm.
+  In Spanish only story-13 reality_known FB is non-discriminating (stories 1/7 still
+  discriminate). Low-scoring groups' means/variances are weakly identified (move with
+  the quadrature grid / guessing rule); production uses mirt's default [-6, 6] grid.
+- **Stories block-CAT design simulation (2026-09-25; `levante-analysis/tasks/_stories_cat_sim.R`
+  → `data/stories_2026-09/results_cat_sim.rds`, ~16 min, needs `LEVANTEMODELS_PATH` for the
+  SE refit; model-based, 2PL+g from `results_reliability.rds`, bank = 83 items (story-4 rc_2/_3
+  dropped: broken on the deployed 4g image)).** Mean model reliability over the 8 calibration
+  groups: deployed random 3-block .52 (4.8 min) → max-info within the same 3 blocks .64 (4.9 min;
+  info/minute rule .64 in 4.6 min) → 4 stories .71 (~6.9 min) for current-3-blocks+1-free, blocks
+  MR|SO|DC+RF|RK+IN, or no blocks with ≤1 story per type (all tied); canvas 4-block .69 (6.4 min:
+  its forced reality_known block is 2 items). A 6-story fixed form is .69 in 9.4 min. Grouping
+  matters little once selection is adaptive. Randomesque top-2 costs ~.01–.04. Picking
+  high-discrimination stories (Σa²) recovers only ~25–55% of the adaptive gain, and in the current
+  3 blocks it is worse than random for the lowest-scoring groups. Run the online EAP under the group prior (the N(0,1) reference
+  prior costs up to .26 in UTDT-intl). Max-info repeats 74–90% of stories at a 6- or 12-month
+  retest; forbidding repeats costs .045–.075. Calibration error at current n: capitalization
+  < .01. Local dependence (testlet): reliability overstated ~.02–.04, ranking unchanged.
+  **The pooled parameters for stories 13–18 are ~89% es-AR responses**, so under DIF it is DE,
+  not es-AR, that a pooled-parameter CAT mis-scores (+0.14 to +0.22 logits on average); es-CO
+  about −0.08. Rescoring with group-specific parameters removes the bias. Within-dataset EAP age
+  slopes understate latent growth by var(EAP)/σ² (0.41–0.78).
 - **Memory**: release notes flag the 2×2/3×3 scoring concern, but grid size
   is already a separate calibrated item dimension — the DROP flag is likely
   obsolete on corrected data (`tasks/memory.qmd`).
@@ -295,11 +379,16 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   len 2, +1 after 3 consecutive correct, 3-error budget per block,
   backward restarts at 2. **Do NOT cut the error budget** (replay on real
   data: budget 3→2 drops DE retest .58→.48, Bogotá stability .46→.32 —
-  errors are the informative trials). DCC recommendation: **promote after
-  2 consecutive correct + start both blocks at len 3** (−22–25% time, no
-  detectable reliability cost, SE .48→.53); optional add-on: forward
-  fast-track (clear len 5 → exit to backward@4) cuts worst-case q90
-  4.33→3.39 min. Round-2 tests: ramp-on-1+verify (team idea) is
+  errors are the informative trials). **Deployed rules (dev-confirmed,
+  2026-09): blocks end at min(21-trial hardcoded cap, 3 cumulative
+  errors), fixed trial corpus** — cap binds for the able ~5%. **FINAL DCC
+  recommendation (C3, supersedes earlier S4): promote after 2 consecutive
+  correct; forward starts at 2 (31% of 5–6yo never pass len 2 — do NOT
+  start at 3); backward starts at 3 iff forward cleared len 3; caps
+  14 fwd / 12 bwd; keep the 3-error budget** → median −15%, q90 −21%,
+  SE .48→.51, retest within noise. Corpus-trim vs rule-based is
+  measurement-equivalent (tied difficulties; published trials carry no
+  attempt index). Round-2 tests: ramp-on-1+verify (team idea) is
   measurement-neutral but SLOWER than current; a max-info CAT topline
   saves only ~8% at matched precision (informative trials are long
   trials) — the staircase is already near the info/time frontier. DE mg
@@ -309,7 +398,7 @@ and its siblings, including `packages/levante-r`, `packages/levantemodels`,
   same-named caches silently overwrite. Scoring metadata now v2_3;
   `levantemodels::get_model_record()` works (the old rlevante registry
   break is moot). renv gotcha #2: a poisoned cached `mgcv` binary (missing
-  OpenMP symbol) blocks mirt inside the levante-longitudinal project —
+  OpenMP symbol) blocks mirt inside the levante-analysis project —
   purge the renv cache hash dir, or run mirt outside the project.
 - **Same & Different** has new scoring models pending implementation; hold
   analysis until they land. Full model comparison + recommendation (2026-07):
