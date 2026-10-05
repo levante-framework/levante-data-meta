@@ -9,6 +9,19 @@ working on LEVANTE data, packages, or analyses:
   infrastructure map, Redivis datasets, scoring pipeline, and known data
   issues/gotchas. Read this before touching LEVANTE data or packages.
 
+It also holds small R files of shared definitions, meant to be `source()`d
+from any repo via a path relative to the LEVANTE root (see below):
+
+- **`plot_settings.R`** — ggplot theme plus the task, site, and stimulus
+  color palettes.
+- **`task_info.R`** — canonical `task_code` -> `task_label` / `task_category`
+  mapping, as a tibble named `task_info`.
+
+```r
+source(here("..", "levante-data-meta", "task_info.R"))       # sibling repo
+source(here("..", "..", "levante-data-meta", "task_info.R")) # under packages/ or papers/
+```
+
 ## Directory structure
 
 The convention is a single **LEVANTE root directory** (name it whatever you
